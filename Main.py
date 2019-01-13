@@ -10,28 +10,28 @@ import time
 import ast
 import urllib
 from PIL import Image, ImageDraw
-from tqdm import tqdm
-from dask import bag, threaded
+#from tqdm import tqdm
+#from dask import bag, threaded
 import matplotlib
 import matplotlib.pyplot as pltc
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from dask import bag, threaded
+#from dask import bag, threaded
 from tensorflow import keras
-from tensorflow.keras.layers import Conv2D, MaxPooling2D
-from tensorflow.keras.layers import Dense, Dropout, Flatten, Activation
-from tensorflow.keras.metrics import categorical_accuracy, top_k_categorical_accuracy, categorical_crossentropy
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.applications.nasnet import NASNetMobile
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
-from tensorflow.keras import backend as K
-from tensorflow.keras.applications import MobileNet
+from tensorflow.python.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.python.keras.layers import Dense, Dropout, Flatten, Activation
+from tensorflow.python.keras.metrics import categorical_accuracy, top_k_categorical_accuracy, categorical_crossentropy
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+from tensorflow.python.keras.optimizers import Adam
+from tensorflow.python.keras.applications.nasnet import NASNetMobile
+from tensorflow.python.keras.preprocessing import image
+from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.python.keras import backend as K
+from tensorflow.python.keras.applications import MobileNet
 # Input data files are available in the "../input/" directory.
 # For example, running this (by clicking run or pressing Shift+Enter) will list the files in the input directory
 BASE_SIZE = 256
