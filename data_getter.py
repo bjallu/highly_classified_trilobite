@@ -10,6 +10,7 @@ from six.moves.urllib import request
 from xml.dom import minidom
 from tensorflow import keras
 from skimage.transform import resize
+from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Activation, Input, Conv2D, MaxPooling2D
 from tensorflow.keras.metrics import categorical_accuracy, top_k_categorical_accuracy, categorical_crossentropy
 from tensorflow.keras.models import Sequential
@@ -101,15 +102,14 @@ for i, name in enumerate(classes):
     image = np.load(dst)
     #image = image.reshape(image.shape[0], 28, 28)
     images = []
-    for j in range(1000):
+    for j in range(10000):
         x = image[j]
         x = resize(x, (target_size, target_size),mode='constant',anti_aliasing=False)
         x = np.stack((x,)*3, axis=-1) 
         x = x.astype(np.float32)
         images.append(x)
-        print('yay we manged to rezize mah nizlzlzle')
     X.append(np.array(images))
-    Y.append(keras.utils.to_categorical(np.full(1000, i), len(classes)))
+    Y.append(keras.utils.to_categorical(np.full(10000, i), len(classes)))
 
 #add shuffle on dataset 
 
@@ -121,6 +121,7 @@ for i,y in enumerate(Y):
         X_final = np.concatenate((X_final, X[i]), axis=0)
 
 
+X_train, X_test, y_train, y_test = train_test_split(X_final, Y_final, test_size=0.2, random_state=42)
 
 input_tensor = Input(shape=(96,96,3))
 
@@ -132,12 +133,23 @@ for layer in base_model.layers:
     layer.trainable = False
 
 x = base_model.output
-x = Flatten()(x)
-x = Dense(1024, activation='relu')(x)
-predictions = Dense(number_of_classes, activation='softmax')(x)
+#x = Flatten()(x)
+#x = Dense(512, activation='relu')(x) # adding just this worked best so far proly depends on number of classes as well
+predictions = Dense(number_of_classes, activation='softmax',use_bias=True, name='Logits')(x)
+'''
+        x = Reshape(shape, name='reshape_1')(x)
+        x = Dropout(dropout, name='dropout')(x)
+        x = Conv2D(classes, (1, 1),
+                   padding='same', name='conv_preds')(x)
+        x = Activation('softmax', name='act_softmax')(x)
+x = Reshape((classes,), name='reshape_2')(x)
+'''
+
+
+#predictions = Dense(number_of_classes, activation='softmax')(x)
 model = Model(inputs=base_model.input, outputs=predictions)
-model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=1e-4), metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=1e-3), metrics=['accuracy'])
 
 model.summary()
 
-model.fit(X_final, Y_final, validation_split=0.2, epochs=5, batch_size=100)
+model.fit(X_train, y_train, validation_split=0.2, epochs=10, batch_size=100)
