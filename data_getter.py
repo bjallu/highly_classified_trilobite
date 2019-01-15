@@ -19,7 +19,8 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.layers import Dense,Flatten
 from tensorflow.keras.applications import MobileNetV2
-
+import random
+random.seed(1337)
 
 
 def list_bucket(bucket, regexp='.*'):
@@ -133,14 +134,26 @@ for i, y in enumerate(Y):
         X_final = np.concatenate((X_final, X[i]), axis=0)
 
 
-X_train, X_test, y_train, y_test = train_test_split(X_final, Y_final, test_size=0.2, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(X_final, Y_final, test_size=0.4, random_state=42)
+x_val, x_test, y_val, y_test = train_test_split(x_test, y_test, test_size=0.5, random_state=42)
+
+
+# Normalize
+x_train_normalized = x_train.astype('float32') / 255
+x_val_normalized = x_val.astype('float32') / 255
+x_test_normalized = x_test.astype('float32') / 255
+
 
 input_tensor = Input(shape=(96,96,3))
 
 base_model = MobileNetV2(input_tensor=input_tensor, input_shape=(96, 96, 3), include_top=False, weights='imagenet', classes=number_of_classes, pooling='avg')
 
+####
+trainableLayers = False
+####
+
 for layer in base_model.layers:
-    layer.trainable = False
+    layer.trainable = trainableLayers
 
 op = Dense(256, activation='relu')(base_model.output)
 output_tensor = Dense(number_of_classes, activation='softmax')(op)
@@ -149,22 +162,28 @@ model = Model(inputs=input_tensor, outputs=output_tensor)
 model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['categorical_accuracy'])
 model.summary()
 
+batch_size = 1000
 
-train_generator = load_data_generator(X_train, y_train, batch_size=64)
-test_generator = load_data_generator(X_test, y_test, batch_size=64)
+train_generator = load_data_generator(x_train, y_train, batch_size=batch_size)
+val_generator = load_data_generator(x_val, y_val, batch_size=batch_size)
+test_generator = load_data_generator(x_test, y_test, batch_size=batch_size)
 
+training_history = model.fit_generator(
+    generator=train_generator,
+    validation_data=val_generator,
+    steps_per_epoch=1,
+    validation_steps=1,
+    verbose=1,
+    epochs=5)
 
+f, ax = plt.subplots(1)
+ax.plot(training_history.epoch, training_history.history["categorical_accuracy"], label="Train")
+ax.plot(training_history.epoch, training_history.history["val_categorical_accuracy"], label="Val")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.savefig(str(trainableLayers) + ".jpg")
+plt.show()
 
-#training_history = model.fit_generator(
-#    generator=train_generator,
-#    steps_per_epoch=1000,
-#    verbose=1,
-#    epochs=100)
-# model.save('zooModel.h5')
-
-model = load_model('zooModel.h5')
-
-# results = model.evaluate_generator(generator=test_generator, steps=len(X_test)/64, verbose=1)
-results = model.evaluate_generator(generator=train_generator, steps=100, verbose=1)
-
-print(results)
+results = model.evaluate_generator(generator=test_generator, steps=len(x_test)/batch_size, verbose=1)
+print("Test results: " + str(results[1]))
