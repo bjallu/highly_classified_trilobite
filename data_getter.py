@@ -20,7 +20,7 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.layers import Dense,Flatten
 from tensorflow.keras.applications import MobileNetV2
 import random
-random.seed(1337)
+np.random.seed(1337)
 
 
 def list_bucket(bucket, regexp='.*'):
@@ -120,9 +120,9 @@ for i, name in enumerate(classes):
     print(name, end=' ')
     dst = '%s/%s.npy' % (data_path, name)
     image = np.load(dst)
-    #image = image.reshape(image.shape[0], 28, 28)
-    X.append(np.array(image))
-    Y.append(keras.utils.to_categorical(np.full(image.shape[0], i), len(classes)))
+    idx = np.random.choice(np.arange(len(image)), 10000, replace=False)
+    X.append(np.array(image[idx]))
+    Y.append(keras.utils.to_categorical(np.full(10000, i), len(classes)))
 
 #add shuffle on dataset 
 
@@ -149,7 +149,7 @@ input_tensor = Input(shape=(96,96,3))
 base_model = MobileNetV2(input_tensor=input_tensor, input_shape=(96, 96, 3), include_top=False, weights='imagenet', classes=number_of_classes, pooling='avg')
 
 ####
-trainableLayers = False
+trainableLayers = True
 ####
 
 for layer in base_model.layers:
