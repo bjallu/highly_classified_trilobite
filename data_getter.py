@@ -149,7 +149,7 @@ input_tensor = Input(shape=(96,96,3))
 base_model = MobileNetV2(input_tensor=input_tensor, input_shape=(96, 96, 3), include_top=False, weights='imagenet', classes=number_of_classes, pooling='avg')
 
 ####
-trainableLayers = True
+trainableLayers = False
 ####
 
 for layer in base_model.layers:
@@ -164,9 +164,9 @@ model.summary()
 
 batch_size = 1000
 
-train_generator = load_data_generator(x_train, y_train, batch_size=batch_size)
-val_generator = load_data_generator(x_val, y_val, batch_size=batch_size)
-test_generator = load_data_generator(x_test, y_test, batch_size=batch_size)
+train_generator = load_data_generator(x_train_normalized, y_train, batch_size=batch_size)
+val_generator = load_data_generator(x_val_normalized, y_val, batch_size=batch_size)
+test_generator = load_data_generator(x_test_normalized, y_test, batch_size=batch_size)
 
 training_history = model.fit_generator(
     generator=train_generator,
@@ -174,7 +174,7 @@ training_history = model.fit_generator(
     steps_per_epoch=len(x_train)/batch_size,
     validation_steps=len(x_val)/batch_size,
     verbose=1,
-    epochs=5)
+    epochs=10)
 
 f, ax = plt.subplots(1)
 ax.plot(training_history.epoch, training_history.history["categorical_accuracy"], label="Train")
