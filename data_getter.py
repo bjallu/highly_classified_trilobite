@@ -171,8 +171,8 @@ test_generator = load_data_generator(x_test, y_test, batch_size=batch_size)
 training_history = model.fit_generator(
     generator=train_generator,
     validation_data=val_generator,
-    steps_per_epoch=1,
-    validation_steps=1,
+    steps_per_epoch=len(x_train)/batch_size,
+    validation_steps=len(x_val)/batch_size,
     verbose=1,
     epochs=5)
 
