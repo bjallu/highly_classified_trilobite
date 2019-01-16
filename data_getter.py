@@ -149,7 +149,7 @@ input_tensor = Input(shape=(96,96,3))
 base_model = MobileNetV2(input_tensor=input_tensor, input_shape=(96, 96, 3), include_top=False, weights='imagenet', classes=number_of_classes, pooling='avg')
 
 ####
-trainableLayers = False
+trainableLayers = True
 ####
 
 for layer in base_model.layers:
