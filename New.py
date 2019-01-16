@@ -149,7 +149,7 @@ model.summary()
 
 batch_size = 50
 
-training_history = model.fit(x=x_train, y=y_train, batch_size=batch_size, epochs=2, verbose=1, callbacks=None, validation_split=0.25, shuffle=True)
+training_history = model.fit(x=x_train, y=y_train, batch_size=batch_size, epochs=10, verbose=1, callbacks=None, validation_split=0.25, shuffle=True)
 
 f, ax = plt.subplots(1)
 ax.plot(training_history.epoch, training_history.history["categorical_accuracy"], label="Train")
